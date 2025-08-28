@@ -14,8 +14,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Eye, EyeOff, LogIn } from 'lucide-react';
-import { useState } from 'react';
+import { Eye, EyeOff, LogIn, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 const signinSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -26,6 +26,9 @@ type SigninFormValues = z.infer<typeof signinSchema>;
 
 export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<SigninFormValues>({
     resolver: zodResolver(signinSchema),
@@ -35,9 +38,49 @@ export default function SignIn() {
     },
   });
 
-  const onSubmit = (data: SigninFormValues) => {
+  // Check if we're on the client side
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Check localStorage for saved email and remember me preference on component mount
+  useEffect(() => {
+    if (!isClient) return;
+
+    const savedEmail = localStorage.getItem('email');
+    const savedRememberMe = localStorage.getItem('remember');
+
+    if (savedEmail && savedRememberMe === 'true') {
+      form.setValue('email', savedEmail);
+      setRememberMe(true); // Restore the checkbox state
+      // Set focus to password field after a short delay to ensure form is rendered
+      setTimeout(() => {
+        form.setFocus('password');
+      }, 100);
+    }
+  }, [form, isClient]);
+
+  const onSubmit = async (data: SigninFormValues) => {
+    setIsSubmitting(true);
     console.log('Form data:', data);
-    // Handle signin logic here
+
+    // Handle remember me only after successful authentication
+    if (rememberMe) {
+      localStorage.setItem('remember', 'true');
+      localStorage.setItem('email', data.email);
+    } else {
+      localStorage.removeItem('remember');
+      localStorage.removeItem('email');
+    }
+
+    // Simulate signin process for 3 seconds
+    setTimeout(() => {
+      setIsSubmitting(false);
+      // Redirect to dashboard after successful signin
+      window.location.href = '/dashboard';
+    }, 3000);
+
+    // Handle actual signin logic here
   };
 
   return (
@@ -45,11 +88,8 @@ export default function SignIn() {
       <div className="max-w-md w-full space-y-8">
         <Card className="shadow-2xl">
           <CardHeader className="text-center space-y-2">
-            <div className="mx-auto w-12 h-12 bg-muted rounded-full flex items-center justify-center mb-4">
-              <LogIn className="w-6 h-6 text-muted-foreground" />
-            </div>
             <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
-            <CardDescription>Sign in to your account to continue</CardDescription>
+            <CardDescription>Sign in to your account</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -105,28 +145,34 @@ export default function SignIn() {
                   )}
                 />
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <input
-                      id="remember"
-                      type="checkbox"
-                      className="w-4 h-4 text-primary border-input rounded focus:ring-primary"
-                    />
-                    <label htmlFor="remember" className="text-sm text-muted-foreground">
-                      Remember me
-                    </label>
-                  </div>
-                  <a
-                    href="#"
-                    className="text-sm text-primary hover:text-primary/80 transition-colors"
+                <div className="flex justify-center items-center align-middle gap-2">
+                  <input
+                    id="remember"
+                    type="checkbox"
+                    checked={rememberMe}
+                    className="w-4 h-4 text-primary border-input rounded focus:ring-primary"
+                    onChange={e => setRememberMe(e.target.checked)}
+                  />
+                  <label
+                    htmlFor="remember"
+                    className="text-sm text-muted-foreground cursor-pointer"
                   >
-                    Forgot password?
-                  </a>
+                    Remember me
+                  </label>
                 </div>
 
-                <Button type="submit" className="w-full h-11">
-                  <LogIn className="w-4 h-4 mr-2" />
-                  Sign In
+                <Button type="submit" className="w-full h-11" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Please Wait
+                    </>
+                  ) : (
+                    <>
+                      <LogIn className="w-4 h-4 mr-2" />
+                      Sign In
+                    </>
+                  )}
                 </Button>
 
                 <div className="text-center">

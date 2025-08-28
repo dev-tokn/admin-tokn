@@ -15,7 +15,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Mail, Smartphone, ArrowLeft, Send } from 'lucide-react';
+import { Mail, Smartphone, Send } from 'lucide-react';
 import Link from 'next/link';
 
 const emailSchema = z.object({
@@ -59,9 +59,6 @@ export default function ResetPassword() {
       <div className="max-w-md w-full space-y-8">
         <Card className="shadow-2xl">
           <CardHeader className="text-center space-y-2">
-            <div className="mx-auto w-12 h-12 bg-muted rounded-full flex items-center justify-center mb-4">
-              <Mail className="w-6 h-6 text-muted-foreground" />
-            </div>
             <CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
             <CardDescription>Choose how you want to reset your password</CardDescription>
           </CardHeader>

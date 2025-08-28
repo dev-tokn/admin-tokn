@@ -1,10 +1,11 @@
 'use client';
 
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { format } from 'date-fns';
-import { Calendar as CalendarIcon } from 'lucide-react';
+import { CalendarDays, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 // import { Label } from '@/components/ui/label';
@@ -26,27 +27,57 @@ import {
 } from '@/components/ui/form';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
+import { cn, capitalizeText } from '@/lib/utils';
 
 const registerSchema = z.object({
-  first_name: z.string().min(2, 'First name must be at least 2 characters'),
-  last_name: z.string().min(2, 'Last name must be at least 2 characters'),
-  dob: z.date(),
+  first_name: z
+    .string()
+    .min(2, 'First name must be at least 2 characters')
+    .max(30, 'First name must be less than 30 characters')
+    .regex(/^[a-zA-Z\s]*$/, 'First name must contain only letters')
+    .trim(),
+  last_name: z
+    .string()
+    .min(2, 'Last name must be at least 2 characters')
+    .max(30, 'Last name must be less than 30 characters')
+    .regex(/^[a-zA-Z\s]*$/, 'First name must contain only letters')
+    .trim(),
+  dob: z.date().refine(date => {
+    const today = new Date();
+    const age = today.getFullYear() - date.getFullYear();
+    const monthDiff = today.getMonth() - date.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate())) {
+      return age - 1 >= 18;
+    }
+    return age >= 18;
+  }, 'You must be at least 18 years old'),
   gender: z.enum(['male', 'female', 'other']),
-  email: z.string().email('Please enter a valid email address'),
-  mobile: z.string().min(10, 'Mobile number must be at least 10 digits'),
-  postal_code: z.string().min(5, 'Postal code must be at least 5 characters'),
+  email: z.email('Please enter a valid email address'),
+  mobile: z
+    .string()
+    .min(10, 'Mobile number must be at least 10 digits')
+    .max(10, 'Mobile number must be less than 10 digits'),
+  postal_code: z
+    .string()
+    .min(5, 'Postal code must be at least 5 characters')
+    .max(6, 'Postal code must be less than 5 characters'),
 });
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 const Register = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       first_name: '',
       last_name: '',
-      dob: undefined,
+      dob: (() => {
+        const date = new Date();
+        date.setFullYear(date.getFullYear() - 25);
+        return date;
+      })(),
       gender: undefined,
       email: '',
       mobile: '',
@@ -54,9 +85,17 @@ const Register = () => {
     },
   });
 
-  const onSubmit = (data: RegisterFormValues) => {
+  const onSubmit = async (data: RegisterFormValues) => {
+    setIsSubmitting(true);
     console.log('Form data:', data);
-    // Handle form submission here
+
+    // Simulate form submission for 5 seconds
+    setTimeout(() => {
+      setIsSubmitting(false);
+      // Handle actual form submission here
+      // Navigate to the signin page
+      window.location.href = '/signin';
+    }, 5000);
   };
 
   return (
@@ -78,7 +117,14 @@ const Register = () => {
                       <FormItem>
                         <FormLabel>First Name</FormLabel>
                         <FormControl>
-                          <Input placeholder="John" {...field} />
+                          <Input
+                            placeholder="John"
+                            {...field}
+                            onBlur={e => {
+                              const capitalized = capitalizeText(e.target.value);
+                              field.onChange(capitalized);
+                            }}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -91,7 +137,14 @@ const Register = () => {
                       <FormItem>
                         <FormLabel>Last Name</FormLabel>
                         <FormControl>
-                          <Input placeholder="Doe" {...field} />
+                          <Input
+                            placeholder="Doe"
+                            {...field}
+                            onBlur={e => {
+                              const capitalized = capitalizeText(e.target.value);
+                              field.onChange(capitalized);
+                            }}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -110,26 +163,36 @@ const Register = () => {
                           <Popover>
                             <PopoverTrigger asChild>
                               <Button
-                                variant={'outline'}
+                                variant="outline"
                                 className={cn(
-                                  'w-full justify-start text-left font-normal',
+                                  'w-full justify-start text-left font-normal bg-transparent',
                                   !field.value && 'text-muted-foreground'
                                 )}
                               >
-                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                {field.value ? (
-                                  format(field.value, 'PPP')
-                                ) : (
-                                  <span>Date of birth</span>
-                                )}
+                                <CalendarDays className="mr-1 h-4 w-4" />
+                                {field.value ? format(field.value, 'PPP') : <span>Birth date</span>}
                               </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
+                            <PopoverContent
+                              className="w-auto overflow-hidden p-0"
+                              align="start"
+                              sideOffset={8}
+                            >
                               <Calendar
                                 mode="single"
                                 selected={field.value}
                                 onSelect={field.onChange}
+                                defaultMonth={field.value}
                                 initialFocus
+                                disabled={date => {
+                                  const today = new Date();
+                                  const minDate = new Date();
+                                  const maxDate = new Date();
+                                  minDate.setFullYear(today.getFullYear() - 18);
+                                  maxDate.setFullYear(today.getFullYear() - 100);
+                                  return date > today || date < maxDate;
+                                }}
+                                captionLayout="dropdown"
                               />
                             </PopoverContent>
                           </Popover>
@@ -184,7 +247,7 @@ const Register = () => {
                       <FormItem>
                         <FormLabel>Mobile</FormLabel>
                         <FormControl>
-                          <Input placeholder="+1234567890" {...field} />
+                          <Input placeholder="10 digit mobile number" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -205,8 +268,15 @@ const Register = () => {
                   />
                 </div>
 
-                <Button type="submit" className="w-full">
-                  Create Account
+                <Button type="submit" className="w-full" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Please Wait
+                    </>
+                  ) : (
+                    'Create Account'
+                  )}
                 </Button>
 
                 <div className="text-center">
