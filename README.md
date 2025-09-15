@@ -26,9 +26,17 @@ admin-tokn/
 │   │   │   └── signin/
 │   │   │       └── page.tsx
 │   │   ├── dashboard/
+│   │   │   ├── AppSideBar.tsx
 │   │   │   ├── layout.tsx
 │   │   │   ├── NavBar.tsx
-│   │   │   └── page.tsx
+│   │   │   ├── page.tsx
+│   │   │   └── partners/
+│   │   │       ├── (partnerTable)/
+│   │   │       │   ├── columns.tsx
+│   │   │       │   └── partner-table.tsx
+│   │   │       ├── add/
+│   │   │       │   └── page.tsx
+│   │   │       └── page.tsx
 │   │   ├── global-error.tsx
 │   │   ├── global-not-found.tsx
 │   │   ├── globals.css
@@ -64,8 +72,13 @@ admin-tokn/
 │   │   └── use-mobile.ts
 │   └── lib/
 │       ├── actions/
+│       │   ├── auth.ts
+│       │   └── index.ts
+│       ├── auth/
+│       │   ├── auth.tsx
 │       │   └── index.ts
 │       ├── types/
+│       │   ├── auth.ts
 │       │   └── index.ts
 │       ├── utils.ts
 │       └── validations/
