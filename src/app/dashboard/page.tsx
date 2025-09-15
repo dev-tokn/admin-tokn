@@ -1,5 +1,7 @@
+import Home from './Home';
+
 const Dashboard = () => {
-  return <div>Dashboard</div>;
+  return <Home />;
 };
 
 export default Dashboard;

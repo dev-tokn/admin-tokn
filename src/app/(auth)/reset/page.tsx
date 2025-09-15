@@ -144,7 +144,8 @@ export default function ResetPassword() {
                 </Link>
               </div>
 
-              <div className="text-sm text-muted-foreground">
+              {/* feature not implemented for admin dashboard */}
+              {/* <div className="text-sm text-muted-foreground">
                 Don&apos;t have an account?{' '}
                 <Link
                   href="/register"
@@ -152,7 +153,7 @@ export default function ResetPassword() {
                 >
                   Register
                 </Link>
-              </div>
+              </div> */}
             </div>
           </CardContent>
         </Card>

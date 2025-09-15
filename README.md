@@ -1,20 +1,100 @@
-This is a dev repo
+# 🚀 Admin Tokn
 
-## Getting Started
+## 📁 Project Structure
 
-First, run the development server:
-
-```bash
-npm run dev
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## References
-
-To learn more about Next.js, take a look at the following resources:
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-https://www.youtube.com/watch?v=SjsQdfvxjL8
 ```
+admin-tokn/
+├── components.json
+├── eslint.config.mjs
+├── next-env.d.ts
+├── next.config.ts
+├── package.json
+├── package-lock.json
+├── postcss.config.mjs
+├── tsconfig.json
+├── README.md
+├── public/
+│   └── favicon.ico
+├── src/
+│   ├── middleware.ts
+│   ├── app/
+│   │   ├── (auth)/
+│   │   │   ├── (register)/
+│   │   │   │   └── page.tsx
+│   │   │   ├── reset/
+│   │   │   │   └── page.tsx
+│   │   │   └── signin/
+│   │   │       └── page.tsx
+│   │   ├── dashboard/
+│   │   │   ├── layout.tsx
+│   │   │   ├── NavBar.tsx
+│   │   │   └── page.tsx
+│   │   ├── global-error.tsx
+│   │   ├── global-not-found.tsx
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   └── page.tsx
+│   ├── components/
+│   │   ├── custom/
+│   │   │   ├── BackButton.tsx
+│   │   │   ├── ModeToggle.tsx
+│   │   │   └── RememberMe.tsx
+│   │   ├── providers/
+│   │   │   └── Theme-Provider.tsx
+│   │   └── ui/
+│   │       ├── avatar.tsx
+│   │       ├── button.tsx
+│   │       ├── calendar.tsx
+│   │       ├── card.tsx
+│   │       ├── checkbox.tsx
+│   │       ├── dropdown-menu.tsx
+│   │       ├── form.tsx
+│   │       ├── input.tsx
+│   │       ├── label.tsx
+│   │       ├── popover.tsx
+│   │       ├── select.tsx
+│   │       ├── separator.tsx
+│   │       ├── sheet.tsx
+│   │       ├── sidebar.tsx
+│   │       ├── skeleton.tsx
+│   │       ├── sonner.tsx
+│   │       ├── tabs.tsx
+│   │       └── tooltip.tsx
+│   ├── hooks/
+│   │   └── use-mobile.ts
+│   └── lib/
+│       ├── actions/
+│       │   └── index.ts
+│       ├── types/
+│       │   └── index.ts
+│       ├── utils.ts
+│       └── validations/
+│           ├── auth.ts
+│           └── index.ts
+└── node_modules/
+    └── [dependencies]
+```
+
+## 🏗️ Architecture Overview
+
+### Core Files
+
+- **`src/middleware.ts`** - Next.js middleware for route protection and token management
+- **`src/lib/types/index.ts`** - TypeScript type definitions
+- **`src/lib/validations/auth.ts`** - Zod validation schemas
+- **`src/lib/actions/index.ts`** - Server actions exports
+
+### App Structure
+
+- **`src/app/(auth)/`** - Authentication pages (signin, reset, register)
+- **`src/app/dashboard/`** - Protected dashboard area
+- **`src/components/`** - Reusable UI components
+
+### Key Features
+
+- ✅ TypeScript support
+- ✅ Next.js 14+ with App Router
+- ✅ Middleware-based authentication
+- ✅ Server actions for API integration
+- ✅ Zod validation
+- ✅ Tailwind CSS + shadcn/ui components

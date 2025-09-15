@@ -1,8 +1,17 @@
-export default function layout({ children }: { children: React.ReactNode }) {
+import { SidebarProvider } from '@/components/ui/sidebar';
+import { AppSidebar } from './AppSidebar';
+import NavBar from './NavBar';
+
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div>
-      <h1>Dashboard</h1>
-      {children}
-    </div>
+    <section>
+      <SidebarProvider>
+        <AppSidebar />
+        <main className="flex-1">
+          <NavBar />
+          {children}
+        </main>
+      </SidebarProvider>
+    </section>
   );
 }
