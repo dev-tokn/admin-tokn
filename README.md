@@ -1,5 +1,26 @@
 # 🚀 Admin Tokn
 
+## 🏗️ Architecture Overview
+
+### Key Features
+
+- ✅ TypeScript support
+- ✅ Next.js 15+ with App Router
+- ✅ Middleware-based authentication
+- ✅ Server actions for API integration
+- ✅ Zod validation
+- ✅ Tailwind CSS + shadcn/ui components
+
+### Stack for a modern, robust, and highly maintainable Next.js admin dashboard
+
+- Framework: Next.js (with App Router)
+- Language: TypeScript
+- Authentication: Auth.js (with Credentials Provider)
+- Data Fetching: TanStack Query
+- UI Components: Shadcn/ui (with Tailwind CSS)
+- Form Management: React Hook Form + Zod
+- Code Quality: ESLint + Prettier
+
 ## 📁 Project Structure
 
 ```
@@ -87,27 +108,3 @@ admin-tokn/
 └── node_modules/
     └── [dependencies]
 ```
-
-## 🏗️ Architecture Overview
-
-### Core Files
-
-- **`src/middleware.ts`** - Next.js middleware for route protection and token management
-- **`src/lib/types/index.ts`** - TypeScript type definitions
-- **`src/lib/validations/auth.ts`** - Zod validation schemas
-- **`src/lib/actions/index.ts`** - Server actions exports
-
-### App Structure
-
-- **`src/app/(auth)/`** - Authentication pages (signin, reset, register)
-- **`src/app/dashboard/`** - Protected dashboard area
-- **`src/components/`** - Reusable UI components
-
-### Key Features
-
-- ✅ TypeScript support
-- ✅ Next.js 14+ with App Router
-- ✅ Middleware-based authentication
-- ✅ Server actions for API integration
-- ✅ Zod validation
-- ✅ Tailwind CSS + shadcn/ui components

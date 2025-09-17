@@ -1,5 +1,8 @@
 'use client';
 
+import { useState, Suspense } from 'react';
+import { signIn } from 'next-auth/react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
@@ -13,71 +16,60 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Eye, EyeOff, LogIn } from 'lucide-react';
-import { useState, useEffect, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Eye, EyeOff, LogIn, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { signinAction } from '@/lib/actions';
-import { signinSchema, type SigninFormData } from '@/lib/validations';
-import { useAuth, useIsAuthenticated } from '@/lib/auth';
+import { loginSchema, type LoginFormData } from '@/lib/validations/auth';
+import BrandLogo from '@/components/custom/BrandLogo';
 
-export default function SignIn() {
+// Loading component for Suspense fallback
+function SignInLoading() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-muted/50 px-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold text-center">Loading...</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex justify-center">
+            <Loader2 className="h-8 w-8 animate-spin" />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// Main signin component
+function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const [isClient, setIsClient] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [isPending, startTransition] = useTransition();
   const router = useRouter();
-  const { login } = useAuth();
-  const isAuthenticated = useIsAuthenticated();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
 
-  // Redirect if already authenticated
-  useEffect(() => {
-    if (isAuthenticated) {
-      router.push('/dashboard');
-    }
-  }, [isAuthenticated, router]);
-
-  const form = useForm<SigninFormData>({
-    resolver: zodResolver(signinSchema),
+  const form = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
     defaultValues: {
       email: '',
       password: '',
     },
   });
 
-  // Check if we're on the client side
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  const onSubmit = async (data: LoginFormData) => {
+    setIsLoading(true);
 
-  // Check localStorage for saved email and remember me preference on component mount
-  useEffect(() => {
-    if (!isClient) return;
+    try {
+      const result = await signIn('credentials', {
+        ...data,
+        redirect: false,
+      });
 
-    const savedEmail = localStorage.getItem('email');
-    const savedRememberMe = localStorage.getItem('remember');
-
-    if (savedEmail && savedRememberMe === 'true') {
-      form.setValue('email', savedEmail);
-      setRememberMe(true);
-      setTimeout(() => {
-        form.setFocus('password');
-      }, 100);
-    }
-  }, [form, isClient]);
-
-  const onSubmit = (data: SigninFormData) => {
-    startTransition(async () => {
-      try {
-        // Create FormData for server action
-        const formData = new FormData();
-        formData.append('email', data.email || '');
-        formData.append('password', data.password);
-
-        // Add remember me to form data
-        formData.append('rememberMe', rememberMe.toString());
-
-        // Handle remember me in localStorage
+      if (result?.error) {
+        toast.error('Invalid credentials. Please try again.');
+      } else if (result && !result.error) {
+        // Handle remember me
         if (rememberMe) {
           localStorage.setItem('remember', 'true');
           localStorage.setItem('email', data.email || '');
@@ -86,130 +78,132 @@ export default function SignIn() {
           localStorage.removeItem('email');
         }
 
-        // Call server action
-        const result = await signinAction(formData);
-
-        if (result.success && result.data) {
-          // Update global auth state (uses sessionStorage for token and user data)
-          login(result.data.user, result.data.token);
-
-          // Show success message
-          toast.success(result.message || 'Login successful!', {
-            description: `Welcome back, ${result.data.user.firstName}!`,
-            duration: 3000,
-          });
-
-          // Redirect to dashboard
-          router.push('/dashboard');
-        } else {
-          // Show error message
-          toast.error(result.message || 'Login failed', {
-            description: result.errors?.[0]?.message || 'Please check your credentials',
-            duration: 5000,
-          });
-        }
-      } catch (error) {
-        console.error('Signin error:', error);
-        toast.error('An unexpected error occurred', {
-          description: 'Please try again later',
-          duration: 5000,
-        });
+        toast.success('Login successful!');
+        router.push(callbackUrl);
+        router.refresh();
       }
-    });
+    } catch (error) {
+      console.error('Login error:', error);
+      toast.error('An error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // Don't render if already authenticated
-  if (isAuthenticated) {
-    return null;
-  }
-
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="max-w-md space-y-8">
-        <Card className="shadow-2xl">
-          <CardHeader className="text-center space-y-2">
-            <CardTitle className="text-2xl font-bold">Welcome</CardTitle>
-            <CardDescription>Sign in to your account</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-medium">Email</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="Enter your email"
-                          className="h-11"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-medium">Password</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input
-                            type={showPassword ? 'text' : 'password'}
-                            placeholder="Enter your password"
-                            className="h-11 pr-10"
-                            {...field}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
-                          >
-                            {showPassword ? (
-                              <EyeOff className="w-4 h-4" />
-                            ) : (
-                              <Eye className="w-4 h-4" />
-                            )}
-                          </button>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="flex justify-center items-center align-middle gap-2">
-                  <input
-                    id="remember"
-                    type="checkbox"
-                    checked={rememberMe}
-                    className="w-4 h-4 text-primary border-input rounded focus:ring-primary"
-                    onChange={e => setRememberMe(e.target.checked)}
-                  />
-                  <label
-                    htmlFor="remember"
-                    className="text-sm text-muted-foreground cursor-pointer"
-                  >
-                    Remember me
-                  </label>
-                </div>
-
-                <Button type="submit" className="w-full h-11" disabled={isPending}>
-                  <LogIn className="w-4 h-4 mr-2" />
-                  {isPending ? 'Signing In...' : 'Sign In'}
-                </Button>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
+    <div className="container mx-auto max-w-sm">
+      <div className="flex justify-center p-8">
+        <BrandLogo />
       </div>
+      <Card>
+        <CardHeader className="p-2">
+          <CardTitle className="text-2xl font-bold text-center">Welcome back</CardTitle>
+          <CardDescription className="text-center">Sign in to your account</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="email"
+                        placeholder="Enter your email"
+                        disabled={isLoading}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Input
+                          {...field}
+                          type={showPassword ? 'text' : 'password'}
+                          placeholder="Enter your password"
+                          disabled={isLoading}
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                          onClick={() => setShowPassword(!showPassword)}
+                          disabled={isLoading}
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="remember"
+                  checked={rememberMe}
+                  onCheckedChange={checked => setRememberMe(checked as boolean)}
+                  disabled={isLoading}
+                />
+                <label
+                  htmlFor="remember"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Remember me
+                </label>
+              </div>
+
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Signing in...
+                  </>
+                ) : (
+                  <>
+                    <LogIn className="mr-2 h-4 w-4" />
+                    Sign In
+                  </>
+                )}
+              </Button>
+            </form>
+          </Form>
+
+          <div className="mt-4 text-center text-sm">
+            <a href="/reset" className="text-primary hover:underline">
+              Forgot your password?
+            </a>
+          </div>
+        </CardContent>
+      </Card>
     </div>
+  );
+}
+
+// Main export with Suspense wrapper
+export default function SignIn() {
+  return (
+    <Suspense fallback={<SignInLoading />}>
+      <SignInForm />
+    </Suspense>
   );
 }

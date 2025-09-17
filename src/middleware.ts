@@ -1,25 +1,30 @@
+import { auth } from '@/lib/actions/auth';
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
 
-// Define protected routes
-const protectedRoutes = ['/dashboard'];
+export default auth(req => {
+  const { nextUrl } = req;
+  const isLoggedIn = !!req.auth;
 
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  // Define protected routes
+  const protectedRoutes = ['/dashboard'];
+  const isProtectedRoute = protectedRoutes.some(route => nextUrl.pathname.startsWith(route));
 
-  // Check if the current path is a protected route
-  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+  // Define auth routes (where logged-in users shouldn't be)
+  const authRoutes = ['/signin', '/register', '/reset'];
+  const isAuthRoute = authRoutes.some(route => nextUrl.pathname.startsWith(route));
 
-  if (isProtectedRoute) {
-    // Since token is in sessionStorage, we can't check it in middleware
-    // The AuthProvider will handle redirecting unauthenticated users
-    return NextResponse.next();
+  // Redirect to signin if accessing protected route without auth
+  if (isProtectedRoute && !isLoggedIn) {
+    return NextResponse.redirect(new URL('/signin', nextUrl));
   }
 
-  // For auth routes, let the client-side handle redirects
-  // The AuthProvider will redirect authenticated users away from auth pages
+  // Redirect to dashboard if accessing auth routes while logged in
+  if (isAuthRoute && isLoggedIn) {
+    return NextResponse.redirect(new URL('/dashboard', nextUrl));
+  }
+
   return NextResponse.next();
-}
+});
 
 export const config = {
   matcher: [

@@ -1,4 +1,3 @@
-// Re-export auth server actions
-export * from './auth';
-// Re-export businesses server actions
+// Re-export all server actions
 export * from './businesses';
+export * from './auth';

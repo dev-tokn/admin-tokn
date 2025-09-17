@@ -1,2 +1,3 @@
 export * from './use-mobile';
-export * from './useBusinesses';
+export * from './useBusinessesQuery';
+export * from './useAuth';

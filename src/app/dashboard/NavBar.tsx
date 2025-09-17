@@ -11,21 +11,16 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { User, ReceiptIndianRupee, Phone, Handshake, LogOut } from 'lucide-react';
-import { useAuth, useUserInitials, useIsLoading } from '@/lib/auth';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import { useAuth } from '@/lib/hooks';
+import { getUserDisplayName, getUserInitials } from '@/lib/auth/utils';
 
 const NavBar = () => {
-  const { logout } = useAuth();
-  const userInitials = useUserInitials();
-  const isLoading = useIsLoading();
+  const { user, logout } = useAuth();
 
-  if (isLoading) {
-    return (
-      <nav className="p-4 flex justify-between items-center">
-        <div>Loading...</div>
-      </nav>
-    );
-  }
+  const handleLogout = () => {
+    logout();
+  };
 
   return (
     <nav className="w-full flex justify-between items-center p-4">
@@ -39,11 +34,11 @@ const NavBar = () => {
           <DropdownMenuTrigger>
             <Avatar>
               <AvatarImage src="/user-01.jpg" />
-              <AvatarFallback>{userInitials}</AvatarFallback>
+              <AvatarFallback>{user ? getUserInitials(user) : 'U'}</AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuLabel>{user ? getUserDisplayName(user) : 'My Account'}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
               <User />
@@ -65,7 +60,7 @@ const NavBar = () => {
               <Handshake />
               Terms of Service
             </DropdownMenuItem>
-            <DropdownMenuItem variant="destructive" onClick={logout}>
+            <DropdownMenuItem variant="destructive" onClick={handleLogout}>
               <LogOut />
               Logout
             </DropdownMenuItem>

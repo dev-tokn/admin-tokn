@@ -1,124 +1,109 @@
-'use server';
+import NextAuth from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import { loginUser } from '@/lib/auth/api';
+import { loginSchema } from '@/lib/validations/auth';
 
-import { redirect } from 'next/navigation';
-import { z } from 'zod';
-import { signinSchema } from '@/lib/validations';
-import { SigninRequest, SigninResponse } from '@/lib/types';
-
-// API configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.nkot.co.in';
-
-// Signin server action
-export async function signinAction(formData: FormData) {
-  try {
-    // Extract form data
-    const rawData = {
-      email: formData.get('email') as string,
-      countryCode: formData.get('countryCode') as string,
-      mobileNumber: formData.get('mobileNumber') as string,
-      userName: formData.get('userName') as string,
-      password: formData.get('password') as string,
-    };
-
-    // Remove empty strings and convert to proper types
-    const cleanData = Object.fromEntries(
-      Object.entries(rawData).filter(([_, value]) => value !== null && value !== '')
-    );
-
-    // Validate the data
-    const validationResult = signinSchema.safeParse(cleanData);
-
-    if (!validationResult.success) {
-      return {
-        success: false,
-        message: 'Validation failed',
-        errors: validationResult.error.issues.map(issue => ({
-          field: issue.path.join('.'),
-          message: issue.message,
-        })),
-      };
-    }
-
-    const validatedData = validationResult.data;
-
-    // Prepare API request
-    const apiRequest: SigninRequest = {
-      password: validatedData.password,
-    };
-
-    // Add authentication method (only one should be present due to validation)
-    if (validatedData.email) {
-      apiRequest.email = validatedData.email;
-    } else if (validatedData.countryCode && validatedData.mobileNumber) {
-      apiRequest.countryCode = validatedData.countryCode;
-      apiRequest.mobileNumber = validatedData.mobileNumber;
-    } else if (validatedData.userName) {
-      apiRequest.userName = validatedData.userName;
-    }
-
-    // Make API call
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
-      method: 'POST',
-      headers: {
-        accept: 'application/json',
-        'Content-Type': 'application/json',
+export const { handlers, signIn, signOut, auth } = NextAuth({
+  providers: [
+    CredentialsProvider({
+      name: 'credentials',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        countryCode: { label: 'Country Code', type: 'text' },
+        mobileNumber: { label: 'Mobile Number', type: 'text' },
+        userName: { label: 'Username', type: 'text' },
+        password: { label: 'Password', type: 'password' },
       },
-      body: JSON.stringify(apiRequest),
-    });
+      async authorize(credentials) {
+        if (!credentials) return null;
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      return {
-        success: false,
-        message: errorData.message || 'Login failed',
-        errors: [],
-      };
-    }
+        try {
+          // Validate credentials using your existing schema
+          const validatedCredentials = loginSchema.parse(credentials);
 
-    const data: SigninResponse = await response.json();
+          // Call your API
+          const result = await loginUser(validatedCredentials);
 
-    if (data.success) {
-      // Store token in cookie
-      const cookieHeader = `auth_token=${data.data.token}; Path=/; Max-Age=${7 * 24 * 60 * 60}; HttpOnly; Secure; SameSite=Strict`;
+          if (result) {
+            return {
+              id: result.user.id,
+              email: result.user.email || '',
+              name: `${result.user.firstName} ${result.user.lastName}`,
+              firstName: result.user.firstName,
+              lastName: result.user.lastName,
+              userName: result.user.userName,
+              mobileNumber: result.user.mobileNumber,
+              countryCode: result.user.countryCode,
+              gender: result.user.gender,
+              dob: result.user.dob,
+              location: result.user.location,
+              roles: result.user.roles,
+              isActive: result.user.isActive,
+              isVerified: result.user.isVerified,
+              isMobileVerified: result.user.isMobileVerified,
+              isApproved: result.user.isApproved,
+              createdAt: result.user.createdAt,
+              updatedAt: result.user.updatedAt,
+              accessToken: result.token,
+            };
+          }
 
-      // Store user data in cookie (for server-side access)
-      const userCookieHeader = `user_data=${encodeURIComponent(JSON.stringify(data.data.user))}; Path=/; Max-Age=${7 * 24 * 60 * 60}; HttpOnly; Secure; SameSite=Strict`;
-
-      // Return success with headers to set cookies
-      return {
-        success: true,
-        message: data.message,
-        data: data.data,
-        headers: {
-          'Set-Cookie': [cookieHeader, userCookieHeader],
-        },
-      };
-    } else {
-      return {
-        success: false,
-        message: data.message || 'Login failed',
-        errors: [],
-      };
-    }
-  } catch (error) {
-    console.error('Signin error:', error);
-    return {
-      success: false,
-      message: 'An unexpected error occurred',
-      errors: [],
-    };
-  }
-}
-
-// Helper function to handle signin with redirect
-export async function signinWithRedirect(formData: FormData) {
-  const result = await signinAction(formData);
-
-  if (result.success) {
-    // Redirect to dashboard on success
-    redirect('/dashboard');
-  }
-
-  // Return result for error handling
-  return result;
-}
+          return null;
+        } catch (error) {
+          console.error('Authorization error:', error);
+          return null;
+        }
+      },
+    }),
+  ],
+  callbacks: {
+    async jwt({ token, user }) {
+      // Persist the OAuth access_token and user info to the token right after signin
+      if (user) {
+        token.accessToken = user.accessToken;
+        token.user = {
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          userName: user.userName,
+          mobileNumber: user.mobileNumber,
+          countryCode: user.countryCode,
+          email: user.email || '',
+          gender: user.gender,
+          dob: user.dob,
+          location: user.location,
+          roles: user.roles,
+          isActive: user.isActive,
+          isVerified: user.isVerified,
+          isMobileVerified: user.isMobileVerified,
+          isApproved: user.isApproved,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+        };
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      // Send properties to the client
+      if (token) {
+        session.user = {
+          ...session.user,
+          ...token.user,
+        };
+        session.accessToken = token.accessToken;
+      }
+      return session;
+    },
+  },
+  pages: {
+    signIn: '/signin',
+    error: '/signin',
+  },
+  session: {
+    strategy: 'jwt',
+    maxAge: 7 * 24 * 60 * 60, // 7 days
+  },
+  jwt: {
+    maxAge: 7 * 24 * 60 * 60, // 7 days
+  },
+});

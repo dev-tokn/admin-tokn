@@ -14,12 +14,49 @@ import {
 
 export const columns: ColumnDef<Business>[] = [
   {
+    id: 'actions',
+    enableHiding: false,
+    header: () => {
+      return (
+        <Button variant="ghost" className="h-8 w-8 p-0">
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const business = row.original;
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(business.id)}>
+              Copy business ID
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>View details</DropdownMenuItem>
+            <DropdownMenuItem>
+              {business.isVerified ? 'Mark as unverified' : 'Mark as verified'}
+            </DropdownMenuItem>
+            <DropdownMenuItem className="text-red-600">Delete business</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
+  },
+  {
     accessorKey: 'legalName',
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          className="px-0"
         >
           Business Name
           <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -29,9 +66,9 @@ export const columns: ColumnDef<Business>[] = [
     cell: ({ row }) => {
       const business = row.original;
       return (
-        <div className="flex flex-col">
-          <div className="font-medium">{business.legalName}</div>
-          <div className="text-sm text-muted-foreground">{business.brandName}</div>
+        <div className="flex text-sm flex-col">
+          <div className="font-medium">{business.brandName}</div>
+          <div className="">{business.legalName}</div>
         </div>
       );
     },
@@ -103,7 +140,7 @@ export const columns: ColumnDef<Business>[] = [
     cell: ({ row }) => {
       const isVerified = row.getValue('isVerified') as boolean;
       return (
-        <Badge variant={isVerified ? 'default' : 'secondary'}>
+        <Badge variant={isVerified ? 'success' : 'default'}>
           {isVerified ? 'Verified' : 'Unverified'}
         </Badge>
       );
@@ -125,36 +162,6 @@ export const columns: ColumnDef<Business>[] = [
     cell: ({ row }) => {
       const date = new Date(row.getValue('createdAt'));
       return <div className="text-sm">{date.toLocaleDateString()}</div>;
-    },
-  },
-  {
-    id: 'actions',
-    enableHiding: false,
-    cell: ({ row }) => {
-      const business = row.original;
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(business.id)}>
-              Copy business ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View details</DropdownMenuItem>
-            <DropdownMenuItem>
-              {business.isVerified ? 'Mark as unverified' : 'Mark as verified'}
-            </DropdownMenuItem>
-            <DropdownMenuItem className="text-red-600">Delete business</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
     },
   },
 ];
