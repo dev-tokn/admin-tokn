@@ -2,6 +2,7 @@ import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { loginUser } from '@/lib/auth/api';
 import { loginSchema } from '@/lib/validations/auth';
+import { tokenStorage } from '@/lib/auth/tokenStorage';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -91,6 +92,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           ...token.user,
         };
         session.accessToken = token.accessToken;
+
+        // Store JWT token in sessionStorage for development
+        if (
+          typeof window !== 'undefined' &&
+          process.env.NODE_ENV === 'development' &&
+          token.accessToken
+        ) {
+          tokenStorage.setDevToken(token.accessToken);
+        }
       }
       return session;
     },

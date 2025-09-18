@@ -62,11 +62,18 @@ function SignInForm() {
 
     try {
       const result = await signIn('credentials', {
-        ...data,
+        email: data.email,
+        password: data.password,
         redirect: false,
       });
 
-      if (result?.error) {
+      if (result?.ok) {
+        // Store token after successful sign-in (will be available in session)
+        // The JWT token will now be available in session.accessToken
+        toast.success('Sign in successful!');
+        router.push('/dashboard');
+        router.refresh();
+      } else if (result?.error) {
         toast.error('Invalid credentials. Please try again.');
       } else if (result && !result.error) {
         // Handle remember me

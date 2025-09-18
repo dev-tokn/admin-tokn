@@ -50,3 +50,44 @@ export interface GetBusinessesRequest {
   status?: 'verified' | 'unverified';
   search?: string;
 }
+
+// Create business admin request interface
+export interface CreateBusinessAdminRequest {
+  userId: string;
+  legalName: string;
+  brandName: string;
+  businessType: string;
+  entityType?:
+    | 'individual'
+    | 'partnership'
+    | 'limited_liability'
+    | 'private_limited_company'
+    | 'limited_company';
+  gstNumber?: string;
+  panNumber: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  pincode?: string;
+  latitude?: number;
+  longitude?: number;
+}
+
+// Create business response interface
+export interface CreateBusinessResponse {
+  success: boolean;
+  message: string;
+  data: {
+    business: {
+      id: string;
+      legalName: string;
+      brandName: string;
+      businessType: string;
+      entityType: string;
+      gstNumber?: string;
+      panNumber: string;
+      isVerified: boolean;
+    };
+    createdAt: string;
+  };
+}

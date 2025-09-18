@@ -1,7 +1,7 @@
 'use server';
 
 import { getBusinessesSchema } from '@/lib/validations/businesses';
-import { GetBusinessesRequest, BusinessesResponse } from '@/lib/types/businesses';
+import { GetBusinessesRequest, BusinessesResponse, CreateBusinessAdminRequest, CreateBusinessResponse } from '@/lib/types/businesses';
 
 // API configuration
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.nkot.co.in';
@@ -76,6 +76,43 @@ export async function getBusinessesAction(params: GetBusinessesRequest, token: s
     }
   } catch (error) {
     console.error('Get businesses error:', error);
+    return {
+      success: false,
+      message: 'An unexpected error occurred',
+      errors: [],
+    };
+  }
+}
+
+// Create business action
+export async function createBusinessAction(businessData: CreateBusinessAdminRequest, token: string) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/businesses/create`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(businessData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      return {
+        success: false,
+        message: errorData.message || 'Failed to create business',
+        errors: errorData.errors || [],
+      };
+    }
+
+    const data: CreateBusinessResponse = await response.json();
+    return {
+      success: true,
+      message: 'Business created successfully',
+      data,
+    };
+  } catch (error) {
+    console.error('Create business error:', error);
     return {
       success: false,
       message: 'An unexpected error occurred',
