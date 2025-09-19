@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, Suspense, useEffect } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -57,6 +57,17 @@ function SignInForm() {
     },
   });
 
+  // Initialize remember me state and email from localStorage
+  useEffect(() => {
+    const isRemembered = localStorage.getItem('remember') === 'true';
+    const rememberedEmail = localStorage.getItem('email') || '';
+
+    if (isRemembered && rememberedEmail) {
+      setRememberMe(true);
+      form.setValue('email', rememberedEmail);
+    }
+  }, [form]);
+
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
 
@@ -68,15 +79,7 @@ function SignInForm() {
       });
 
       if (result?.ok) {
-        // Store token after successful sign-in (will be available in session)
-        // The JWT token will now be available in session.accessToken
-        toast.success('Sign in successful!');
-        router.push('/dashboard');
-        router.refresh();
-      } else if (result?.error) {
-        toast.error('Invalid credentials. Please try again.');
-      } else if (result && !result.error) {
-        // Handle remember me
+        // Handle remember me functionality
         if (rememberMe) {
           localStorage.setItem('remember', 'true');
           localStorage.setItem('email', data.email || '');
@@ -85,9 +88,11 @@ function SignInForm() {
           localStorage.removeItem('email');
         }
 
-        toast.success('Login successful!');
+        toast.success('Sign in successful!');
         router.push(callbackUrl);
         router.refresh();
+      } else if (result?.error) {
+        toast.error('Invalid credentials. Please try again.');
       }
     } catch (error) {
       console.error('Login error:', error);

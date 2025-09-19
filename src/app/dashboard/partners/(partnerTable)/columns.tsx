@@ -38,13 +38,12 @@ function ActionsCell({ business }: { business: Business }) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+        <DropdownMenuLabel className="font-semibold">Actions</DropdownMenuLabel>
+        <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => navigator.clipboard.writeText(business.id)}>
           Copy business ID
         </DropdownMenuItem>
-        <DropdownMenuSeparator />
 
-        <DropdownMenuSeparator />
         {business.isVerified ? (
           <DropdownMenuItem
             onClick={handleUnverify}

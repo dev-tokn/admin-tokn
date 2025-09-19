@@ -1,8 +1,37 @@
-# Next.js API Organization Structure - Gemini on 17092025
+# 🎯 Tokn Admin Dashboard - API Documentation & Implementation Plan
+
+_Created: September 17, 2025_  
+_Last Updated: [Current Date]_  
+_Version: 2.0_  
+_Maintained by: Development Team_
+
+## 📋 Project Context Schema
+
+### **Current Project: Tokn Admin Dashboard**
+
+**Purpose**: Admin dashboard to manage all system data, users, entities, and business partners  
+**Scope**:
+
+- User management (admin, merchant, tippee, tipper roles)
+- Business partner management (outlets, locations, verification)
+- System administration and monitoring
+- Role-based access control
+- API integration and data management
+
+### **Context Definitions**
+
+| Context    | Purpose                     | Scope                                                     |
+| ---------- | --------------------------- | --------------------------------------------------------- |
+| `Admin`    | System administration       | Full CRUD operations, user management, business oversight |
+| `Public`   | Public-facing features      | User registration, public profiles, business listings     |
+| `Partner`  | Business partner operations | Outlet management, tippee assignment, partner analytics   |
+| `Internal` | Internal system operations  | Data sync, reporting, system maintenance                  |
+
+---
+
+## ️ Project Structure
 
 Based on the OpenAPI specification, here's the recommended folder structure for organizing API services:
-
-## Project Structure
 
 ```
 src/
@@ -34,7 +63,9 @@ src/
 │       └── common.ts    # Shared types
 ```
 
-## Service Categories Identified
+---
+
+## 🎯 Service Categories Identified
 
 1. **Admin Services** - User management, business verification, outlet management
 2. **Authentication Services** - Login, register, password management, OTP
@@ -44,7 +75,9 @@ src/
 6. **User Services** - Profile management, password changes
 7. **Upload Services** - File upload configurations
 
-## Files to Create
+---
+
+## 📁 Files to Create
 
 ### Admin Services
 
@@ -185,7 +218,16 @@ When implementing a new API endpoint:
 
 ---
 
-## 📝 Notes
+## 📝 Key Implementation Notes
+
+### **API Response as Single Source of Truth**
+
+- Always match interfaces to actual API responses
+- Don't assume data structure from other endpoints
+- Each endpoint has its own unique response structure
+- Update UI to match API response, not the other way around
+
+### **Naming Convention Rules**
 
 - **Always use the full pattern** - don't abbreviate for convenience
 - **Be consistent** - if you start with a pattern, stick to it
@@ -193,8 +235,38 @@ When implementing a new API endpoint:
 - **Review regularly** - ensure team adherence to patterns
 - **Update this guide** - add new patterns as they emerge
 
+### **Context-Specific Considerations**
+
+- **Admin Context**: Full CRUD operations, system oversight
+- **Public Context**: Limited data exposure, user-friendly interfaces
+- **Partner Context**: Business-focused operations, outlet management
+- **Internal Context**: System operations, data processing
+
+---
+
+## 🔄 Integration with Naming Conventions
+
+This document works in conjunction with `api-naming-conventions.md` to provide:
+
+1. **This document**: Project-specific implementation plan and structure
+2. **Naming conventions**: Universal patterns and best practices
+
+Both documents should be maintained and updated as the project evolves.
+
 ---
 
 _Last Updated: [Current Date]_  
-_Version: 1.0_  
+_Version: 2.0_  
 _Maintained by: Development Team_
+
+This comprehensive guide provides:
+
+1. **Project Context** - Clear definition of what we're working on
+2. **File Organization** - How to structure the codebase
+3. **Service Categories** - Logical grouping of API services
+4. **Implementation Plan** - Step-by-step guide for new features
+5. **Quick Reference** - Easy lookup table
+6. **Benefits Explanation** - Why this approach works
+7. **Integration Notes** - How it works with naming conventions
+
+This will serve as our implementation roadmap for the Tokn admin dashboard! 🎯

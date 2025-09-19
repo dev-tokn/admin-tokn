@@ -37,7 +37,7 @@ const PartnerList = () => {
 
   if (isError) {
     return (
-      <div className="container mx-auto p-4">
+      <div className="container mx-auto p-2">
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>{error?.message || 'Failed to fetch businesses'}</AlertDescription>
@@ -53,18 +53,22 @@ const PartnerList = () => {
   const businesses = data?.data?.businesses || [];
 
   return (
-    <div className="flex justify-center">
-      <div className="md:w-[80vw] p-4">
+    <div>
+      <div className="md:w-[80vw] px-4 py-2">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>Business Partners</CardTitle>
-              <CardDescription>Manage and view all business partners in the system</CardDescription>
+          <CardHeader>
+            <div className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="pb-2 text-xl">Business Partners</CardTitle>
+                <CardDescription>
+                  Manage and view all business partners in the system
+                </CardDescription>
+              </div>
+              <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isRefetching}>
+                <RefreshCw className={`h-4 w-4 mr-2 ${isRefetching ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
             </div>
-            <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isRefetching}>
-              <RefreshCw className={`h-4 w-4 mr-2 ${isRefetching ? 'animate-spin' : ''}`} />
-              Refresh
-            </Button>
           </CardHeader>
           <CardContent>
             <DataTable columns={columns} data={businesses} />

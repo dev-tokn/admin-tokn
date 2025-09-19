@@ -1,8 +1,8 @@
 import { ColumnDef } from '@tanstack/react-table';
-import { User } from '@/lib/types/users';
+import { AdminGetAllUsersUser } from '@/lib/types/users';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
+import { ArrowUpDown, MoreHorizontal, UserPlus, Eye } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,8 +11,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { AddRoleDialog } from '@/components/custom/AddRoleDialog';
+import { UserDetailsDialog } from '@/components/custom/UserDetailsDialog';
 
-export const columns: ColumnDef<User>[] = [
+export const columns: ColumnDef<AdminGetAllUsersUser>[] = [
   {
     id: 'actions',
     enableHiding: false,
@@ -39,7 +41,18 @@ export const columns: ColumnDef<User>[] = [
               Copy user ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View details</DropdownMenuItem>
+            <UserDetailsDialog userId={user.id}>
+              <DropdownMenuItem onSelect={e => e.preventDefault()}>
+                <Eye className="mr-2 h-4 w-4" />
+                View Details
+              </DropdownMenuItem>
+            </UserDetailsDialog>
+            <AddRoleDialog user={user}>
+              <DropdownMenuItem onSelect={e => e.preventDefault()}>
+                <UserPlus className="mr-2 h-4 w-4" />
+                Add Role
+              </DropdownMenuItem>
+            </AddRoleDialog>
             <DropdownMenuItem>Edit user</DropdownMenuItem>
             <DropdownMenuItem className="text-red-600">Delete user</DropdownMenuItem>
           </DropdownMenuContent>
@@ -90,21 +103,21 @@ export const columns: ColumnDef<User>[] = [
     },
   },
   {
-    accessorKey: 'roles',
+    accessorKey: 'userRoles',
     header: 'Roles',
     cell: ({ row }) => {
-      const roles = row.getValue('roles') as string[] | undefined;
-      const rolesArray = Array.isArray(roles) ? roles : [];
+      const userRoles = row.getValue('userRoles') as AdminGetAllUsersUser['userRoles'];
 
-      if (rolesArray.length === 0) {
+      if (!userRoles || userRoles.length === 0) {
         return <span className="text-muted-foreground text-sm">No roles</span>;
       }
 
       return (
-        <div className="flex flex-wrap gap-1">
-          {rolesArray.map((role, index) => (
-            <Badge key={index} variant="outline" className="text-xs">
-              {role}
+        <div className="flex flex-col gap-1">
+          {userRoles.map(userRole => (
+            <Badge key={userRole.id} variant="outline" className="text-xs">
+              {userRole.role}
+              {userRole.isPrimary && <span className="ml-1 text-xs text-primary">★</span>}
             </Badge>
           ))}
         </div>
@@ -119,7 +132,7 @@ export const columns: ColumnDef<User>[] = [
       const isVerified = row.original.isVerified;
       const isApproved = row.original.isApproved;
       return (
-        <div className="flex flex-wrap gap-1">
+        <div className="flex flex-col gap-1">
           <Badge variant={isActive ? 'default' : 'secondary'}>
             {isActive ? 'Active' : 'Inactive'}
           </Badge>
@@ -133,21 +146,7 @@ export const columns: ColumnDef<User>[] = [
       );
     },
   },
-  {
-    accessorKey: 'business',
-    header: 'Business',
-    cell: ({ row }) => {
-      const business = row.original.business;
-      return business ? (
-        <div className="text-sm">
-          <div className="font-medium">{business.brandName}</div>
-          <div className="text-muted-foreground">{business.businessType}</div>
-        </div>
-      ) : (
-        <span className="text-muted-foreground">No business</span>
-      );
-    },
-  },
+  // Removed business column as it's not available in GET /admin/users response
   {
     accessorKey: 'createdAt',
     header: ({ column }) => {

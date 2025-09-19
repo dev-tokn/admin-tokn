@@ -23,7 +23,7 @@ const NavBar = () => {
   };
 
   return (
-    <nav className="w-full flex justify-between items-center p-4">
+    <nav className="w-full flex justify-between items-center p-2">
       <div>
         <SidebarTrigger />
       </div>
