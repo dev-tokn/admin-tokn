@@ -1,6 +1,6 @@
 'use client';
 
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import {
   Home,
   Users,
@@ -32,8 +32,21 @@ import {
 } from '@/components/ui/sidebar';
 import Link from 'next/link';
 import BrandLogo from '@/components/custom/BrandLogo';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 const AppSidebar = memo(function AppSidebar() {
+  const { logout } = useAuth();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await logout();
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
@@ -206,11 +219,9 @@ const AppSidebar = memo(function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link href="/dashboard/logout">
-                    <LogOut />
-                    Logout
-                  </Link>
+                <SidebarMenuButton onClick={handleLogout} disabled={isLoggingOut}>
+                  <LogOut />
+                  {isLoggingOut ? 'Logging out...' : 'Logout'}
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
