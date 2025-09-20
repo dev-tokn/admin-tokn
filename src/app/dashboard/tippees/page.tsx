@@ -1,9 +1,8 @@
 'use client';
 
-import { DataTable } from './(tippeeTable)/tippee-table';
+import { TippeeDataTable } from './(tippeeTable)/tippee-table';
 import { columns } from './(tippeeTable)/columns';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, RefreshCw, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -11,32 +10,10 @@ import { useTippeesQuery } from '@/lib/hooks/useTippeesQuery';
 import Link from 'next/link';
 
 const TippeesList = () => {
-  const { data, isLoading, isError, error, refetch, isRefetching } = useTippeesQuery({
+  const { data, isError, error, refetch, isRefetching } = useTippeesQuery({
     page: 1,
     limit: 10,
   });
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center">
-        <div className="md:w-[80vw] p-4">
-          <Card>
-            <CardHeader>
-              <Skeleton className="h-6 w-48" />
-              <Skeleton className="h-4 w-96" />
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Skeleton key={i} className="h-12 w-full" />
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
 
   if (isError) {
     return (
@@ -78,7 +55,7 @@ const TippeesList = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <DataTable columns={columns} data={tippees} />
+            <TippeeDataTable columns={columns} data={tippees} />
           </CardContent>
         </Card>
       </div>

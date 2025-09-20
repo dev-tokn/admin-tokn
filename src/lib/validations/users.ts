@@ -9,7 +9,9 @@ export const getUsersSchema = z.object({
     .min(1, 'Limit must be at least 1')
     .max(100, 'Limit cannot exceed 100')
     .default(10),
-  status: z.enum(['active', 'inactive', 'verified', 'unverified', 'approved', 'pending']).optional(),
+  status: z
+    .enum(['active', 'inactive', 'verified', 'unverified', 'approved', 'pending'])
+    .optional(),
   role: z.string().min(1, 'Role must be at least 1 character').optional(),
   search: z
     .string()
@@ -18,5 +20,11 @@ export const getUsersSchema = z.object({
     .optional(),
 });
 
-// Type inference from schema
+// Set primary role validation schema
+export const setPrimaryRoleSchema = z.object({
+  roleId: z.string().min(1, 'Role ID is required'),
+});
+
+// Type inference from schemas
 export type GetUsersFormData = z.infer<typeof getUsersSchema>;
+export type SetPrimaryRoleFormData = z.infer<typeof setPrimaryRoleSchema>;

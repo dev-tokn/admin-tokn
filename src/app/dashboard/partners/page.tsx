@@ -1,39 +1,18 @@
 'use client';
 
-import { DataTable } from './(partnerTable)/partner-table';
+import { BusinessDataTable } from './(partnerTable)/partner-table';
 import { columns } from './(partnerTable)/columns';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useBusinessesQuery } from '@/lib/hooks/useBusinessesQuery';
 
 const PartnerList = () => {
-  const { data, isLoading, isError, error, refetch, isRefetching } = useBusinessesQuery({
+  const { data, isError, error, refetch, isRefetching } = useBusinessesQuery({
     page: 1,
     limit: 10,
   });
-
-  if (isLoading) {
-    return (
-      <div className="md:w-[80vw] lg:w-[80vw]">
-        <Card>
-          <CardHeader>
-            <Skeleton className="h-6 w-48" />
-            <Skeleton className="h-4 w-96" />
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Skeleton key={i} className="h-12 w-full" />
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   if (isError) {
     return (
@@ -71,7 +50,7 @@ const PartnerList = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <DataTable columns={columns} data={businesses} />
+            <BusinessDataTable columns={columns} data={businesses} />
           </CardContent>
         </Card>
       </div>

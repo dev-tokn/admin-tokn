@@ -2,7 +2,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { AdminGetAllUsersUser } from '@/lib/types/users';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowUpDown, MoreHorizontal, UserPlus, Eye } from 'lucide-react';
+import { ArrowUpDown, MoreHorizontal, Trash2, RotateCcw } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,9 +10,16 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
 } from '@/components/ui/dropdown-menu';
 import { AddRoleDialog } from '@/components/custom/AddRoleDialog';
 import { UserDetailsDialog } from '@/components/custom/UserDetailsDialog';
+import { UserStatusDialog } from '@/components/ui/user-status-dialog';
+import { DeleteUserDialog } from '@/components/ui/delete-user-dialog';
+import { RemoveRoleDialog } from '../../../../components/ui/remove-role-dialog';
+import { RestoreUserDialog } from '@/components/ui/restore-user-dialog';
 
 export const columns: ColumnDef<AdminGetAllUsersUser>[] = [
   {
@@ -42,19 +49,49 @@ export const columns: ColumnDef<AdminGetAllUsersUser>[] = [
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <UserDetailsDialog userId={user.id}>
-              <DropdownMenuItem onSelect={e => e.preventDefault()}>
-                <Eye className="mr-2 h-4 w-4" />
-                View Details
-              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={e => e.preventDefault()}>View Profile</DropdownMenuItem>
             </UserDetailsDialog>
+
+            <UserStatusDialog user={user}>
+              <DropdownMenuItem onSelect={e => e.preventDefault()}>Update Status</DropdownMenuItem>
+            </UserStatusDialog>
+            <DropdownMenuSeparator />
             <AddRoleDialog user={user}>
-              <DropdownMenuItem onSelect={e => e.preventDefault()}>
-                <UserPlus className="mr-2 h-4 w-4" />
-                Add Role
-              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={e => e.preventDefault()}>Add Role</DropdownMenuItem>
             </AddRoleDialog>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>Remove Role</DropdownMenuSubTrigger>
+              <DropdownMenuSubContent>
+                {user.userRoles && user.userRoles.length > 0 ? (
+                  user.userRoles.map(role => (
+                    <RemoveRoleDialog key={role.id} user={user} role={role}>
+                      <DropdownMenuItem onSelect={e => e.preventDefault()}>
+                        <Badge variant="outline" className="mr-2 text-xs">
+                          {role.role}
+                          {role.isPrimary && <span className="ml-1 text-xs text-primary">★</span>}
+                        </Badge>
+                      </DropdownMenuItem>
+                    </RemoveRoleDialog>
+                  ))
+                ) : (
+                  <DropdownMenuItem disabled>No roles to remove</DropdownMenuItem>
+                )}
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+            <DropdownMenuSeparator />
             <DropdownMenuItem>Edit user</DropdownMenuItem>
-            <DropdownMenuItem className="text-red-600">Delete user</DropdownMenuItem>
+            <RestoreUserDialog user={user}>
+              <DropdownMenuItem onSelect={e => e.preventDefault()} className="text-orange-600">
+                <RotateCcw className="mr-2 h-4 w-4" />
+                Restore user
+              </DropdownMenuItem>
+            </RestoreUserDialog>
+            <DeleteUserDialog user={user}>
+              <DropdownMenuItem onSelect={e => e.preventDefault()} className="text-red-600">
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete user
+              </DropdownMenuItem>
+            </DeleteUserDialog>
           </DropdownMenuContent>
         </DropdownMenu>
       );

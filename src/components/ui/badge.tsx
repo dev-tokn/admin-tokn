@@ -16,7 +16,7 @@ const badgeVariants = cva(
           'border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60',
         outline: 'text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground',
         // Added custom variant for success to Badge component, we can adjust the colors here
-        success: 'border-transparent bg-[oklch(72.3%_0.219_149.579)] text-white',
+        success: 'border-transparent bg-[oklch(72.3%_0.219_149.579)] text-black',
       },
     },
     defaultVariants: {

@@ -185,7 +185,106 @@ export interface AddRoleResponse {
   };
 }
 
+// Pending user interface - matches pending approval API response
+export interface PendingUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+  userName: string;
+  mobileNumber: string;
+  countryCode: string;
+  email: string;
+  isActive: boolean;
+  isVerified: boolean;
+  isMobileVerified: boolean;
+  isApproved: boolean;
+  userRoles: UserRole[];
+  createdAt: string;
+}
+
+// Pending users response interface
+export interface PendingUsersResponse {
+  success: boolean;
+  data: {
+    users: PendingUser[];
+  };
+}
+
+// User status update request interface
+export interface UpdateUserStatusRequest {
+  isActive: boolean;
+  isVerified: boolean;
+}
+
+// User status update response interface
+export interface UpdateUserStatusResponse {
+  success: boolean;
+  message: string;
+  data: {
+    id: string;
+    isActive: boolean;
+    isVerified: boolean;
+  };
+}
+
+// Delete user request interface
+export interface DeleteUserRequest {
+  userId: string;
+}
+
+// Delete user response interface
+export interface DeleteUserResponse {
+  success: boolean;
+  message: string;
+}
+
+// Remove role request interface
+export interface RemoveRoleRequest {
+  userId: string;
+  roleId: string;
+}
+
+// Remove role response interface
+export interface RemoveRoleResponse {
+  success: boolean;
+  message: string;
+}
+
+// Get user roles request interface
+export interface GetUserRolesRequest {
+  userId: string;
+}
+
+// Get user roles response interface
+export interface GetUserRolesResponse {
+  success: boolean;
+  message: string;
+  data: {
+    userRoles: UserRole[];
+  };
+}
+
+// Set primary role request interface
+export interface SetPrimaryRoleRequest {
+  roleId: string;
+}
+
+// Set primary role response interface
+export interface SetPrimaryRoleResponse {
+  success: boolean;
+  message: string;
+  data: {
+    userRole: UserRole;
+  };
+}
+
+// Restore user response interface
+export interface RestoreUserResponse {
+  success: boolean;
+  message: string;
+}
+
 // Available roles
-export const AVAILABLE_ROLES = ['admin', 'tippee', 'tipper', 'moderator', 'support'] as const;
+export const AVAILABLE_ROLES = ['admin', 'tippee', 'tipper', 'merchant'] as const;
 
 export type AvailableRole = (typeof AVAILABLE_ROLES)[number];

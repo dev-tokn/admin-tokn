@@ -1,66 +1,32 @@
 'use client';
 
-import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { ColumnDef } from '@tanstack/react-table';
+import { DataTable, DataTableConfig } from '@/components/ui/data-table';
+import { AdminGetAllUsersUser } from '@/lib/types/users';
+import { userGlobalFilterFn } from '@/lib/utils/table-filters';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 }
 
-export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
-  const table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  });
+// User table configuration
+const userTableConfig: DataTableConfig<AdminGetAllUsersUser> = {
+  searchPlaceholder: 'Search users...',
+  globalFilterFn: userGlobalFilterFn,
+  enablePagination: true,
+  pageSize: 10,
+  enableSorting: true,
+  enableColumnVisibility: true,
+  actions: {
+    addButton: {
+      label: 'Add New User',
+      href: '/dashboard/users/add',
+    },
+  },
+  emptyStateMessage: 'No users found.',
+};
 
-  return (
-    <div className="overflow-hidden rounded-md border">
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map(headerGroup => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map(header => {
-                return (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableHead>
-                );
-              })}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map(row => (
-              <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
-                {row.getVisibleCells().map(cell => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </div>
-  );
+export function UserDataTable({ columns, data }: DataTableProps<AdminGetAllUsersUser, unknown>) {
+  return <DataTable columns={columns} data={data} config={userTableConfig} />;
 }

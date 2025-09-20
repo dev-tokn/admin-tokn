@@ -7,8 +7,8 @@ const BrandLogo = () => {
       <Image
         src="/brand-logo-purple.png"
         alt="Tokn Logo"
-        width={140}
-        height={140}
+        width={120}
+        height={80}
         className="block dark:hidden transition-opacity duration-200"
         priority
       />

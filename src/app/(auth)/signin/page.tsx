@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, Suspense, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { signIn } from 'next-auth/react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
@@ -22,32 +22,20 @@ import { toast } from 'sonner';
 import { loginSchema, type LoginFormData } from '@/lib/validations/auth';
 import BrandLogo from '@/components/custom/BrandLogo';
 
-// Loading component for Suspense fallback
-function SignInLoading() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/50 px-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Loading...</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex justify-center">
-            <Loader2 className="h-8 w-8 animate-spin" />
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-// Main signin component
-function SignInForm() {
+export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+
+  // Check for remembered email on component mount
+  useEffect(() => {
+    const rememberedEmail = localStorage.getItem('rememberedEmail');
+    if (rememberedEmail) {
+      setRememberMe(true);
+      // You could pre-fill the email field here if needed
+    }
+  }, []);
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -56,17 +44,6 @@ function SignInForm() {
       password: '',
     },
   });
-
-  // Initialize remember me state and email from localStorage
-  useEffect(() => {
-    const isRemembered = localStorage.getItem('remember') === 'true';
-    const rememberedEmail = localStorage.getItem('email') || '';
-
-    if (isRemembered && rememberedEmail) {
-      setRememberMe(true);
-      form.setValue('email', rememberedEmail);
-    }
-  }, [form]);
 
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
@@ -78,21 +55,18 @@ function SignInForm() {
         redirect: false,
       });
 
-      if (result?.ok) {
+      if (result?.error) {
+        toast.error('Invalid credentials. Please try again.');
+      } else if (result?.ok) {
         // Handle remember me functionality
-        if (rememberMe) {
-          localStorage.setItem('remember', 'true');
-          localStorage.setItem('email', data.email || '');
+        if (rememberMe && data.email) {
+          localStorage.setItem('rememberedEmail', data.email);
         } else {
-          localStorage.removeItem('remember');
-          localStorage.removeItem('email');
+          localStorage.removeItem('rememberedEmail');
         }
 
-        toast.success('Sign in successful!');
-        router.push(callbackUrl);
-        router.refresh();
-      } else if (result?.error) {
-        toast.error('Invalid credentials. Please try again.');
+        toast.success('Login successful!');
+        router.push('/dashboard');
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -103,18 +77,19 @@ function SignInForm() {
   };
 
   return (
-    <div className="container mx-auto max-w-sm">
-      <div className="flex justify-center p-8">
-        <BrandLogo />
-      </div>
+    <div className="container m-auto max-w-sm pt-20">
       <Card>
-        <CardHeader className="p-2">
-          <CardTitle className="text-2xl font-bold text-center">Welcome back</CardTitle>
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-center">
+            <div className="flex justify-center">
+              <BrandLogo />
+            </div>
+          </CardTitle>
           <CardDescription className="text-center">Sign in to your account</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} autoComplete="off" className="space-y-4">
               <FormField
                 control={form.control}
                 name="email"
@@ -123,10 +98,13 @@ function SignInForm() {
                     <FormLabel>Email</FormLabel>
                     <FormControl>
                       <Input
-                        {...field}
                         type="email"
                         placeholder="Enter your email"
+                        {...field}
                         disabled={isLoading}
+                        autoComplete="off"
+                        autoCapitalize="off"
+                        autoCorrect="false"
                       />
                     </FormControl>
                     <FormMessage />
@@ -143,9 +121,9 @@ function SignInForm() {
                     <FormControl>
                       <div className="relative">
                         <Input
-                          {...field}
                           type={showPassword ? 'text' : 'password'}
                           placeholder="Enter your password"
+                          {...field}
                           disabled={isLoading}
                         />
                         <Button
@@ -169,11 +147,11 @@ function SignInForm() {
                 )}
               />
 
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center justify-center space-x-2">
                 <Checkbox
                   id="remember"
                   checked={rememberMe}
-                  onCheckedChange={checked => setRememberMe(checked as boolean)}
+                  onCheckedChange={checked => setRememberMe(checked === true)}
                   disabled={isLoading}
                 />
                 <label
@@ -199,23 +177,8 @@ function SignInForm() {
               </Button>
             </form>
           </Form>
-
-          <div className="mt-4 text-center text-sm">
-            <a href="/reset" className="text-primary hover:underline">
-              Forgot your password?
-            </a>
-          </div>
         </CardContent>
       </Card>
     </div>
-  );
-}
-
-// Main export with Suspense wrapper
-export default function SignIn() {
-  return (
-    <Suspense fallback={<SignInLoading />}>
-      <SignInForm />
-    </Suspense>
   );
 }

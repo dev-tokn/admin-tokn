@@ -1,3 +1,6 @@
+'use client';
+
+import { memo } from 'react';
 import {
   Home,
   Users,
@@ -27,195 +30,176 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import Image from 'next/image';
+import Link from 'next/link';
+import BrandLogo from '@/components/custom/BrandLogo';
 
-export function AppSidebar() {
+const AppSidebar = memo(function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
         <div className="flex items-center justify-between p-2">
-          <a href="/dashboard" className="font-semibold">
-            <Image src="/brand-logo.png" alt="Logo" width={100} height={100} />
-          </a>
-          <a href="/dashboard" className="font-semibold">
+          <Link href="/dashboard" className="font-semibold">
+            {/* <Image
+              src="/brand-logo-purple.png"
+              alt="Tokn Logo"
+              width={120}
+              height={40}
+              priority
+              className="h-8 w-auto"
+            /> */}
+            <BrandLogo />
+          </Link>
+          <Link href="/dashboard" className="font-semibold">
             <Home />
-          </a>
+          </Link>
         </div>
       </SidebarHeader>
       <SidebarContent>
-        {/* <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenuButton asChild>
-              <a href="/dashboard" className="font-semibold">
-                <Home />
-                <span>Home</span>
-              </a>
-            </SidebarMenuButton>
-          </SidebarGroupContent>
-        </SidebarGroup> */}
         <SidebarGroup>
           <SidebarGroupLabel>Transactions</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <a href="/dashboard/users">
+                  <Link href="/dashboard/txns">
                     <Users />
                     All Transactions
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
                 <SidebarMenuButton asChild>
-                  <a href="/dashboard/users/pending">
+                  <Link href="/dashboard/users/pending">
                     <CheckCheck />
                     View by Partner
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
                 <SidebarMenuButton asChild>
-                  <a href="/dashboard/users/pending">
+                  <Link href="/dashboard/users/pending">
                     <CheckCheck />
                     View by Tipper
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
-
                 <SidebarMenuButton asChild>
-                  <a href="/dashboard/users/roles">
+                  <Link href="/dashboard/users/roles">
                     <ShieldUser />
                     View by Tippee
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-
         <SidebarGroup>
           <SidebarGroupLabel>Tippers</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <a href="/dashboard/tippers">
+                  <Link href="/dashboard/tippers">
                     <BadgeIndianRupee />
                     View All Tippers
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-
         <SidebarGroup>
           <SidebarGroupLabel>Tippee</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <a href="/dashboard/tippees">
+                  <Link href="/dashboard/tippees">
                     <FolderPlus />
                     View All Tippees
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
                 <SidebarMenuButton asChild>
-                  <a href="/dashboard/tippees/add">
+                  <Link href="/dashboard/tippees/add">
                     <FilePlus />
                     Add New Tippee
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-
         <SidebarGroup>
           <SidebarGroupLabel>Partners</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <a href="/dashboard/partners">
+                  <Link href="/dashboard/partners">
                     <Handshake />
                     View All Partners
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
-
                 <SidebarMenuButton asChild>
-                  <a href="/dashboard/partners/add">
+                  <Link href="/dashboard/partners/add">
                     <Cross />
                     Add New Partner
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
-
                 <SidebarMenuButton asChild>
-                  <a href="/dashboard/partners/locations">
+                  <Link href="/dashboard/partners/locations">
                     <MapPin />
                     View Locations
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
-
                 <SidebarMenuButton asChild>
-                  <a href="/dashboard/partners/locations/add">
+                  <Link href="/dashboard/partners/locations/add">
                     <MapPinPlus />
                     Add Locations
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-
         <SidebarGroup>
           <SidebarGroupLabel>Offers</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <a href="/dashboard/tippees">
+                  <Link href="/dashboard/tippees">
                     <BadgePercent />
                     View All Offers
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
                 <SidebarMenuButton asChild>
-                  <a href="/dashboard/tippees/add">
+                  <Link href="/dashboard/tippees/add">
                     <BadgePlus />
                     Add New Offer
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-
         <SidebarGroup>
           <SidebarGroupLabel>Users</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <a href="/dashboard/users">
+                  <Link href="/dashboard/users">
                     <Users />
                     View All Users
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
-
                 <SidebarMenuButton asChild>
-                  <a href="/dashboard/users/pending">
+                  <Link href="/dashboard/users/pending">
                     <CheckCheck />
-                    Pending Approval
-                  </a>
-                </SidebarMenuButton>
-
-                <SidebarMenuButton asChild>
-                  <a href="/dashboard/users/roles">
-                    <ShieldUser />
-                    Role Management
-                  </a>
+                    Pending for Approval
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-
       <SidebarFooter>
         <SidebarGroup>
           <SidebarGroupLabel>Logout</SidebarGroupLabel>
@@ -223,10 +207,10 @@ export function AppSidebar() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <a href="/dashboard/logout">
+                  <Link href="/dashboard/logout">
                     <LogOut />
                     Logout
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -235,4 +219,6 @@ export function AppSidebar() {
       </SidebarFooter>
     </Sidebar>
   );
-}
+});
+
+export { AppSidebar };

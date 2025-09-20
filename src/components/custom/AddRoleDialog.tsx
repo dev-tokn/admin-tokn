@@ -32,13 +32,13 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { User, Plus } from 'lucide-react';
 import { useAddUserRole } from '@/lib/hooks/useAdminActions';
-import { AVAILABLE_ROLES, AvailableRole, AdminGetAllUsersUser } from '@/lib/types/users';
+import { AVAILABLE_ROLES, AdminGetAllUsersUser } from '@/lib/types/users';
 
 const addRoleSchema = z.object({
   role: z.enum(AVAILABLE_ROLES, {
-    required_error: 'Please select a role',
+    message: 'Please select a role',
   }),
-  isPrimary: z.boolean().default(false),
+  isPrimary: z.boolean(),
 });
 
 type AddRoleFormData = z.infer<typeof addRoleSchema>;
@@ -68,7 +68,7 @@ export function AddRoleDialog({ user, children }: AddRoleDialogProps) {
       });
       setOpen(false);
       form.reset();
-    } catch (error) {
+    } catch {
       // Error is handled by the mutation
     }
   };
@@ -94,7 +94,10 @@ export function AddRoleDialog({ user, children }: AddRoleDialogProps) {
             Add Role to User
           </DialogTitle>
           <DialogDescription>
-            Add a new role to <span className="font-medium">{user.firstName} {user.lastName}</span>
+            Add a new role to{' '}
+            <span className="font-medium">
+              {user.firstName} {user.lastName}
+            </span>
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -117,7 +120,7 @@ export function AddRoleDialog({ user, children }: AddRoleDialogProps) {
                           <p>All available roles have been assigned</p>
                         </div>
                       ) : (
-                        availableRoles.map((role) => (
+                        availableRoles.map(role => (
                           <SelectItem key={role} value={role}>
                             <span className="capitalize">{role}</span>
                           </SelectItem>
@@ -135,15 +138,12 @@ export function AddRoleDialog({ user, children }: AddRoleDialogProps) {
               render={({ field }) => (
                 <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                   <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
+                    <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
                   <div className="space-y-1 leading-none">
                     <FormLabel>Primary Role</FormLabel>
                     <p className="text-sm text-muted-foreground">
-                      Mark this as the user's primary role
+                      Mark this as the user&apos;s primary role
                     </p>
                   </div>
                 </FormItem>
@@ -158,10 +158,7 @@ export function AddRoleDialog({ user, children }: AddRoleDialogProps) {
               >
                 Cancel
               </Button>
-              <Button 
-                type="submit" 
-                disabled={addUserRole.isPending || availableRoles.length === 0}
-              >
+              <Button type="submit" disabled={addUserRole.isPending || availableRoles.length === 0}>
                 {addUserRole.isPending ? (
                   <>
                     <Plus className="mr-2 h-4 w-4 animate-spin" />

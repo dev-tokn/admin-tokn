@@ -10,13 +10,10 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
-import { User, Eye, Calendar, MapPin, Phone, Mail, Shield, Crown, Coins } from 'lucide-react';
+import { User, Calendar, MapPin, Phone, Mail, Shield, Crown, Coins } from 'lucide-react';
 import { useDetailedUser } from '@/lib/hooks/useAdminActions';
-import { DetailedUser } from '@/lib/types/users';
 
 interface UserDetailsDialogProps {
   userId: string;
@@ -70,7 +67,9 @@ export function UserDetailsDialog({ userId, children }: UserDetailsDialogProps) 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Full Name</label>
-                    <p className="text-sm">{user.firstName} {user.lastName}</p>
+                    <p className="text-sm">
+                      {user.firstName} {user.lastName}
+                    </p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Username</label>
@@ -95,7 +94,9 @@ export function UserDetailsDialog({ userId, children }: UserDetailsDialogProps) 
                     <p className="text-sm capitalize">{user.gender}</p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Date of Birth</label>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Date of Birth
+                    </label>
                     <p className="text-sm flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
                       {new Date(user.dob).toLocaleDateString()}
@@ -141,9 +142,7 @@ export function UserDetailsDialog({ userId, children }: UserDetailsDialogProps) 
                   <Badge variant={user.isApproved ? 'default' : 'secondary'}>
                     {user.isApproved ? 'Approved' : 'Pending Approval'}
                   </Badge>
-                  {user.isDeleted && (
-                    <Badge variant="destructive">Deleted</Badge>
-                  )}
+                  {user.isDeleted && <Badge variant="destructive">Deleted</Badge>}
                 </div>
               </CardContent>
             </Card>
@@ -155,14 +154,15 @@ export function UserDetailsDialog({ userId, children }: UserDetailsDialogProps) 
                   <Crown className="h-5 w-5" />
                   User Roles
                 </CardTitle>
-                <CardDescription>
-                  {user.userRoles.length} role(s) assigned
-                </CardDescription>
+                <CardDescription>{user.userRoles.length} role(s) assigned</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {user.userRoles.map((role) => (
-                    <div key={role.id} className="flex items-center justify-between p-3 border rounded-lg">
+                  {user.userRoles.map(role => (
+                    <div
+                      key={role.id}
+                      className="flex items-center justify-between p-3 border rounded-lg"
+                    >
                       <div className="flex items-center gap-2">
                         <Badge variant="outline" className="capitalize">
                           {role.role}
@@ -221,9 +221,7 @@ export function UserDetailsDialog({ userId, children }: UserDetailsDialogProps) 
               <Card>
                 <CardHeader>
                   <CardTitle>Business Profile</CardTitle>
-                  <CardDescription>
-                    Business information for this user
-                  </CardDescription>
+                  <CardDescription>Business information for this user</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
